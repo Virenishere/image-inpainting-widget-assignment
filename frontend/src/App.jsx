@@ -1,9 +1,10 @@
 import React from "react";
+import HomePage from "./pages/HomePage";
 
 const App = () =>{
   return(
-  <div className="text-green-500 text-4xl">
-    Homepage...
+  <div className="bg-[#1B1A26] h-screen">
+    <HomePage />
   </div>
   )
 }
