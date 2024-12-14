@@ -28,7 +28,7 @@ UPLOAD_FOLDER = './uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Create an endpoint for image upload
-@app.post("/upload/")
+@app.post("/api/upload/")
 async def upload_image(original_image: UploadFile = File(...), mask_image: UploadFile = File(...)):
     print(f"Original Image: {original_image.filename}")
     print(f"Mask Image: {mask_image.filename}")
@@ -47,7 +47,7 @@ async def upload_image(original_image: UploadFile = File(...), mask_image: Uploa
 
 
 # Create an endpoint to retrieve the image pair
-@app.get("/image/{image_id}/")
+@app.get("/api/image/{image_id}/")
 async def get_image(image_id: str):
     image_metadata = get_image_by_id(image_id)
     if image_metadata:
@@ -56,7 +56,7 @@ async def get_image(image_id: str):
 
 
 # Endpoint to retrieve images directly by their name
-@app.get("/uploads/{filename}")
+@app.get("/api/uploads/{filename}")
 async def get_image_by_filename(filename: str):
     file_path = os.path.join(UPLOAD_FOLDER, filename)
     if os.path.exists(file_path):
@@ -65,7 +65,7 @@ async def get_image_by_filename(filename: str):
 
 
 # Create an endpoint to list all uploaded images
-@app.get("/uploads/")
+@app.get("/api/uploads/")
 async def list_uploaded_images():
     # List all files in the uploads directory
     files = os.listdir(UPLOAD_FOLDER)
@@ -77,6 +77,6 @@ async def list_uploaded_images():
 
 
 # Simple root endpoint
-@app.get("/")
+@app.get("/api")
 async def read_root():
     return {"message": "Welcome to the FastAPI image upload service"}
