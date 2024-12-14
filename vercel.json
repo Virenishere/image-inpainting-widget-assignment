@@ -3,7 +3,10 @@
     "builds": [
       {
         "src": "frontend/package.json",
-        "use": "@vercel/react"
+        "use": "@vercel/static-build",
+        "config": {
+          "distDir": "frontend/build"
+        }
       },
       {
         "src": "backend/app/main.py",
@@ -11,14 +14,14 @@
       }
     ],
     "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "backend/app/main.py"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "frontend/dist/$1"
-    }
-  ]
-}
+      {
+        "src": "/api/(.*)",
+        "dest": "backend/app/$1"
+      },
+      {
+        "src": "/(.*)",
+        "dest": "frontend/build/$1"
+      }
+    ]
+  }
   
