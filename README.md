@@ -28,3 +28,6 @@ Follow these steps to set up **FastAPI** and **MongoDB Driver**:
    pip install -r requirements.txt
    ```
 
+
+for running server :- 
+uvicorn app.main:app --reload

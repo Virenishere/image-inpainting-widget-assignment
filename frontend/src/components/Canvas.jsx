@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as fabric from "fabric";
 import CanvasControls from "../components/CanvasControl";
+import axios from 'axios';
 
 const Canvas = ({ onMaskGenerated }) => {
   const canvasRef = useRef(null);
@@ -67,7 +68,6 @@ const Canvas = ({ onMaskGenerated }) => {
     }
   }, [brushSize, canvas]);
 
-
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (file && canvas) {
@@ -117,29 +117,56 @@ const Canvas = ({ onMaskGenerated }) => {
   };
 
 
-  const handleExport = () => {
+  const handleExport = async () => {
     if (canvas) {
       const original = canvas.toDataURL({ format: "png", quality: 1 });
+  
+      // Create a file object from the base64 data URL for uploading
+      const originalFile = dataURLtoFile(original, "original_image.png");
+  
+      // Send original image to backend
+      await uploadImageToBackend(originalFile, originalFile); // Assuming mask image is the same
       onMaskGenerated(original, "");
     }
   };
-
-  const handleExportMask = () => {
+  
+  const handleExportMask = async () => {
     if (canvas) {
       const objectsToRemove = canvas.getObjects().filter(
         (obj) => obj.type === "image"
       );
       objectsToRemove.forEach((obj) => canvas.remove(obj));
       canvas.renderAll();
-
+  
       const mask = canvas.toDataURL({ format: "png", quality: 1 });
-
-      objectsToRemove.forEach((obj) => canvas.add(obj));
-      canvas.renderAll();
-
+  
+      // Create a file object from the base64 data URL for uploading
+      const maskFile = dataURLtoFile(mask, "mask_image.png");
+  
+      // Send mask image to backend
+      await uploadImageToBackend(maskFile, maskFile); // Assuming mask image is the same
       onMaskGenerated("", mask);
     }
   };
+  
+  // Utility function to convert base64 data URL to File object
+  function dataURLtoFile(dataURL, filename) {
+    const [metadata, base64Data] = dataURL.split(',');
+    const binaryString = atob(base64Data);
+    const arrayBuffer = new ArrayBuffer(binaryString.length);
+    const uint8Array = new Uint8Array(arrayBuffer);
+    for (let i = 0; i < binaryString.length; i++) {
+      uint8Array[i] = binaryString.charCodeAt(i);
+    }
+    const blob = new Blob([uint8Array], { type: 'image/png' });
+  
+    // Generate a unique filename by appending a random number
+    const randomSuffix = Math.floor(Math.random() * 1000000); // You can also use Date.now() for a timestamp-based name
+    const uniqueFilename = filename.replace('.png', `_${randomSuffix}.png`);
+  
+    return new File([blob], uniqueFilename, { type: 'image/png' });
+  }
+  
 
   const clearCanvas = () => {
     if (canvas) {
@@ -149,28 +176,26 @@ const Canvas = ({ onMaskGenerated }) => {
     }
   };
 
-  // Download feature for original and mask
-  const handleDownload = (type = 'original') => {
-    const dataUrl = type === 'mask' ? getMaskDataUrl() : getOriginalDataUrl();
-    const link = document.createElement('a');
-    link.href = dataUrl;
-    link.download = type === 'mask' ? 'mask.png' : 'image.png';
-    link.click();
+  // Function to send image to FastAPI backend
+  const uploadImageToBackend = async (originalImageData, maskImageData) => {
+    try {
+      const formData = new FormData();
+      
+      // Append the files directly to the FormData object
+      formData.append("original_image", originalImageData);
+      formData.append("mask_image", maskImageData);
+  
+      const response = await axios.post('http://localhost:8000/upload/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      console.log("Images uploaded successfully", response.data);
+    } catch (error) {
+      console.error("Error uploading images:", error);
+    }
   };
-
-  const getOriginalDataUrl = () => {
-    return canvas.toDataURL({ format: "png", quality: 1 });
-  };
-
-  const getMaskDataUrl = () => {
-    const objectsToRemove = canvas.getObjects().filter((obj) => obj.type === "image");
-    objectsToRemove.forEach((obj) => canvas.remove(obj));
-    canvas.renderAll();
-    const maskDataUrl = canvas.toDataURL({ format: "png", quality: 1 });
-    objectsToRemove.forEach((obj) => canvas.add(obj));
-    canvas.renderAll();
-    return maskDataUrl;
-  };
+  
 
   return (
     <div className="flex flex-col items-center gap-4">
