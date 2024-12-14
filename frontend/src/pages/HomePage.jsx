@@ -21,36 +21,39 @@ const HomePage = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="flex flex-col flex-grow">
       <Header />
-      <div className="flex-grow p-8">
-        <div className="bg-[#232231] rounded-xl shadow-lg p-8">
-          <div className="flex items-center gap-3 mb-8">
-            <h1 className="text-2xl font-bold text-[#808080]">
-              Image Inpainting Widget
-            </h1>
-          </div>
+      <div className="flex p-4 sm:p-8 flex-grow">
+      <div className="bg-[#232231] rounded-xl shadow-lg p-8 w-full">
+  <div className="flex flex-col lg:flex-row items-center gap-3 mb-8">
+    <h1 className="text-2xl font-bold text-[#808080]">
+      Image Inpainting Widget
+    </h1>
+  </div>
 
-          <Canvas onMaskGenerated={handleMaskGenerated} />
-          <ImagePreview
-            originalImage={originalImage}
-            maskImage={maskImage}
-            setOriginalImage={setOriginalImage}
-            setMaskImage={setMaskImage}
-          />
+  <div className="flex flex-col lg:flex-row gap-6">
+    <Canvas onMaskGenerated={handleMaskGenerated} />
+    <ImagePreview
+      originalImage={originalImage}
+      maskImage={maskImage}
+      setOriginalImage={setOriginalImage}
+      setMaskImage={setMaskImage}
+    />
+  </div>
 
-          {/* Clear Images Button */}
-          {(originalImage && maskImage) && (
-            <div className="mt-4 flex justify-center">
-              <button
-                onClick={clearImages}
-                className="bg-red-500 text-white py-2 px-4 rounded-lg"
-              >
-                Clear Images
-              </button>
-            </div>
-          )}
-        </div>
+  {/* Clear Images Button */}
+  {(originalImage && maskImage) && (
+    <div className="mt-4 flex justify-center">
+      <button
+        onClick={clearImages}
+        className="bg-red-500 text-white py-2 px-4 rounded-lg"
+      >
+        Clear Images
+      </button>
+    </div>
+  )}
+</div>
+
       </div>
       <Footer />
     </div>

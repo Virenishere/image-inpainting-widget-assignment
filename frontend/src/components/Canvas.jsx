@@ -118,7 +118,7 @@ const Canvas = ({ onMaskGenerated }) => {
   const clearCanvas = () => {
     if (canvas) {
       canvas.clear();
-      canvas.backgroundColor = "white";
+      canvas.backgroundColor = "black";
       canvas.renderAll();
     }
   };
