@@ -8,12 +8,37 @@ const Canvas = ({ onMaskGenerated }) => {
   const [brushSize, setBrushSize] = useState(20);
   const fileInputRef = useRef(null);
   const [colorSelect, setColorSelect] = useState("#fff");
+  
+  // State for responsive canvas size
+  const [canvasWidth, setCanvasWidth] = useState(600);
+  const [canvasHeight, setCanvasHeight] = useState(400);
+
+  useEffect(() => {
+    // Handle resizing of canvas based on screen width
+    const handleResize = () => {
+      const width = window.innerWidth < 768 ? 300 : 600; // If width is less than tablet (768px), set to 300px
+      const height = window.innerWidth < 768 ? 200 : 400; // Adjust height for smaller screens
+      setCanvasWidth(width);
+      setCanvasHeight(height);
+    };
+
+    // Initial resize
+    handleResize();
+
+    // Add event listener for resizing the window
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup event listener on unmount
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     if (canvasRef.current) {
       const fabricCanvas = new fabric.Canvas(canvasRef.current, {
-        width: 600,
-        height: 400,
+        width: canvasWidth,
+        height: canvasHeight,
         isDrawingMode: true,
       });
 
@@ -28,7 +53,7 @@ const Canvas = ({ onMaskGenerated }) => {
         fabricCanvas.dispose();
       };
     }
-  }, []);
+  }, [canvasWidth, canvasHeight]); // Reinitialize the canvas on size change
 
   useEffect(() => {
     if (canvas) {
@@ -42,6 +67,7 @@ const Canvas = ({ onMaskGenerated }) => {
     }
   }, [brushSize, canvas]);
 
+
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (file && canvas) {
@@ -49,14 +75,14 @@ const Canvas = ({ onMaskGenerated }) => {
       reader.onload = async (event) => {
         try {
           const img = await fabric.Image.fromURL(event.target?.result);
-  
+
           // Clear previous canvas content
           canvas.clear();
-  
+
           // Scale the image to fit the canvas
           const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
           img.scale(scale);
-  
+
           // Center the image on the canvas
           img.set({
             left: (canvas.width - img.width * scale) / 2,
@@ -64,11 +90,11 @@ const Canvas = ({ onMaskGenerated }) => {
             selectable: false, // Disable selection
             evented: false,    // Prevent interaction
           });
-  
+
           // Add the image to the canvas
           canvas.add(img);
           canvas.renderAll();
-  
+
           // Add a black transparent rectangle over the image
           const overlay = new fabric.Rect({
             left: 0,
@@ -79,7 +105,7 @@ const Canvas = ({ onMaskGenerated }) => {
             selectable: false,
             evented: false,
           });
-  
+
           canvas.add(overlay);
           canvas.renderAll();
         } catch (error) {
@@ -89,7 +115,7 @@ const Canvas = ({ onMaskGenerated }) => {
       reader.readAsDataURL(file);
     }
   };
-  
+
 
   const handleExport = () => {
     if (canvas) {
@@ -123,16 +149,41 @@ const Canvas = ({ onMaskGenerated }) => {
     }
   };
 
+  // Download feature for original and mask
+  const handleDownload = (type = 'original') => {
+    const dataUrl = type === 'mask' ? getMaskDataUrl() : getOriginalDataUrl();
+    const link = document.createElement('a');
+    link.href = dataUrl;
+    link.download = type === 'mask' ? 'mask.png' : 'image.png';
+    link.click();
+  };
+
+  const getOriginalDataUrl = () => {
+    return canvas.toDataURL({ format: "png", quality: 1 });
+  };
+
+  const getMaskDataUrl = () => {
+    const objectsToRemove = canvas.getObjects().filter((obj) => obj.type === "image");
+    objectsToRemove.forEach((obj) => canvas.remove(obj));
+    canvas.renderAll();
+    const maskDataUrl = canvas.toDataURL({ format: "png", quality: 1 });
+    objectsToRemove.forEach((obj) => canvas.add(obj));
+    canvas.renderAll();
+    return maskDataUrl;
+  };
+
   return (
     <div className="flex flex-col items-center gap-4">
       <CanvasControls
         onUploadClick={() => fileInputRef.current?.click()}
         onClear={clearCanvas}
         onExport={handleExport}
-        handleExportMask={handleExportMask} // Added this prop
+        handleExportMask={handleExportMask}
         brushSize={brushSize}
         setBrushSize={setBrushSize}
       />
+      
+      {/* File Upload */}
       <input
         ref={fileInputRef}
         type="file"
@@ -140,10 +191,28 @@ const Canvas = ({ onMaskGenerated }) => {
         onChange={handleImageUpload}
         className="hidden"
       />
+
+      {/* Canvas */}
       <canvas
         ref={canvasRef}
         className="border border-gray-300 rounded-lg"
       />
+
+      {/* Download Buttons */}
+      <div className="mt-4">
+        <button
+          className="px-4 py-2 bg-blue-500 text-white rounded mr-2"
+          onClick={() => handleDownload('original')}
+        >
+          Download Original
+        </button>
+        <button
+          className="px-4 py-2 bg-green-500 text-white rounded"
+          onClick={() => handleDownload('mask')}
+        >
+          Download Mask
+        </button>
+      </div>
     </div>
   );
 };
