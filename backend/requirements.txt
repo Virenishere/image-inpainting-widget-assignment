@@ -5,3 +5,4 @@ python-dotenv
 pydantic
 pillow
 vercel
+python-multipart

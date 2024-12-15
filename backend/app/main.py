@@ -15,7 +15,7 @@ app = FastAPI()
 # Allow CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for now (you can restrict this to your frontend domain)
+    allow_origins=["https://image-inpainting-widget-assignment.vercel.app/"],  # Allow all origins for now (you can restrict this to your frontend domain)
     allow_credentials=True,
     allow_methods=["*"],  # Allow all HTTP methods (GET, POST, etc.)
     allow_headers=["*"],  # Allow all headers
