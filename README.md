@@ -1,4 +1,4 @@
-# Image Inpainting Widget Assignment
+# Image Inpainting Widget 
 
 This project involves creating an image inpainting widget where users can upload an image, draw a mask on it, and export both the original image and the mask.
 
