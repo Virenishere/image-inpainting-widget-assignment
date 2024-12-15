@@ -148,6 +148,34 @@ const Canvas = ({ onMaskGenerated }) => {
       onMaskGenerated("", mask);
     }
   };
+
+//logic for downloading the pic
+  const handleDownload = (type) => {
+    if (canvas) {
+      let dataURL;
+      
+      // Based on the type, get either the original image or the mask
+      if (type === 'original') {
+        dataURL = canvas.toDataURL({ format: "png", quality: 1 });
+      } else if (type === 'mask') {
+        // Clear image objects for mask and generate the mask
+        const objectsToRemove = canvas.getObjects().filter(
+          (obj) => obj.type === "image"
+        );
+        objectsToRemove.forEach((obj) => canvas.remove(obj));
+        canvas.renderAll();
+        dataURL = canvas.toDataURL({ format: "png", quality: 1 });
+      }
+  
+      // Create a link element
+      const link = document.createElement('a');
+      link.href = dataURL;
+      link.download = `${type}_image.png`;  // Set the download file name
+      link.click();  // Trigger the download
+    }
+  };
+  
+  
   
   // Utility function to convert base64 data URL to File object
   function dataURLtoFile(dataURL, filename) {
