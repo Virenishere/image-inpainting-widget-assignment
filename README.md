@@ -172,11 +172,11 @@ Here are the available endpoints for testing on **Postman**:
 
 ## License
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/Virenishere/image-inpainting-widget-assignment?tab=MIT-1-ov-file#readme)
 
 
 ## Contact
 
-If you have any questions or queries, feel free to reach out to me via email at [your-email@example.com].
+If you have any questions or queries, feel free to reach out to me via email at [virender288@gmail.com].
 
 
