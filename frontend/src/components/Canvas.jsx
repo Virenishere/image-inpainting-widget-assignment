@@ -185,7 +185,7 @@ const Canvas = ({ onMaskGenerated }) => {
       formData.append("original_image", originalImageData);
       formData.append("mask_image", maskImageData);
   
-      const response = await axios.post('http://localhost:8000/api/upload/', formData, {
+      const response = await axios.post('https://image-inpainting-widget-assignment.onrender.com/api/upload/', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
